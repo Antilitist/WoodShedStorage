@@ -1,0 +1,56 @@
+module Base
+{
+    entity Wood_Shed_Storage
+    {
+        component UiConfig
+        {
+            xuiSkin = default,
+            entityStyle = ES_Wood_Shed_Storage,
+            uiEnabled = false,
+        }
+
+        component SpriteConfig
+        {
+            canBePadlocked = true,
+            health = 600,
+            skillBaseHealth = 50,
+            OnCreate = BuildRecipeCode.woodShedStorage.OnCreate,
+            /* 2x2 chicken-coop footprint. Far row first (NW NE / SW SE).
+               Hit R cycles S (open bay south) then E (open bay east). */
+            face S
+            {
+                layer
+                {
+                    row = woodshed_01_0 woodshed_01_1,
+                    row = woodshed_01_2 woodshed_01_3,
+                }
+            }
+            face E
+            {
+                layer
+                {
+                    row = woodshed_01_4 woodshed_01_5,
+                    row = woodshed_01_6 woodshed_01_7,
+                }
+            }
+        }
+
+        component CraftRecipe
+        {
+            timedAction = BuildWoodenStructureMedium,
+            time = 300,
+            SkillRequired = Woodwork:4,
+            xpAward = Woodwork:80,
+            category = Furniture,
+            Tags = Carpentry,
+            Tooltip = Tooltip_craft_woodShedStorageDesc,
+            inputs
+            {
+                item 1 tags[base:hammer] mode:keep flags[Prop1;MayDegradeVeryLight],
+                item 10 [Base.Plank],
+                item 10 [Base.Nails],
+                item 6 [Base.Log],
+            }
+        }
+    }
+}

@@ -1,0 +1,56 @@
+module Base
+{
+    entity Wood_Shed_Storage
+    {
+        component UiConfig
+        {
+            xuiSkin = default,
+            entityStyle = ES_Wood_Shed_Storage,
+            uiEnabled = false,
+        }
+
+        component SpriteConfig
+        {
+            isProp = true,
+            canBePadlocked = true,
+            health = 400,
+            skillBaseHealth = 40,
+            OnCreate = BuildRecipeCode.woodShedStorage.OnCreate,
+            face S
+            {
+                layer
+                {
+                    row = camping_01_28 camping_01_29,
+                }
+            }
+            face E
+            {
+                layer
+                {
+                    row = camping_01_35,
+                    row = camping_01_34,
+                }
+            }
+        }
+
+        component CraftRecipe
+        {
+            timedAction = BuildWoodenStructureMedium,
+            time = 200,
+            SkillRequired = Woodwork:4,
+            xpAward = Woodwork:50,
+            category = Furniture,
+            Tags = Carpentry,
+            Tooltip = Tooltip_craft_woodShedStorageDesc,
+            inputs
+            {
+                item 1 tags[base:hammer] mode:keep flags[Prop1;MayDegradeLight],
+                item 1 tags[base:saw] mode:keep flags[Prop2;MayDegradeLight],
+                item 12 [Base.Plank],
+                item 10 [Base.Nails],
+                item 2 [Base.Hinge],
+                item 4 [Base.Log],
+            }
+        }
+    }
+}

@@ -1,0 +1,11 @@
+VERSION = 1,
+
+option WoodShedStorage.Capacity
+{
+    type = integer,
+    min = 50,
+    max = 2000,
+    default = 400,
+    page = WoodShedStorage,
+    translation = WoodShedStorage_Capacity,
+}

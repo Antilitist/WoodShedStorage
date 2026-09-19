@@ -1,0 +1,6 @@
+{
+    "Sandbox_WoodShedStorage": "Wood Shed Storage",
+
+    "Sandbox_WoodShedStorage_Capacity": "Wood Shed capacity",
+    "Sandbox_WoodShedStorage_Capacity_tooltip": "Storage weight capacity for newly built Wood Sheds (50-2000).<br>Default 400.<br>Values above ~100 require JB Max Capacity Override.<br>Does not resize sheds already placed."
+}

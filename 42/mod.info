@@ -1,0 +1,11 @@
+name=Wood Shed Storage
+id=WoodShedStorage
+description=Craftable outdoor wood sheds for bulk log/plank storage: 2x2 shed and 2x1 lean-to. Hit R for south/east opening. Sandbox capacity 50-2000 (default 400; JB Max Capacity Override required above ~100). Carpentry 4.
+author=Sam, Avea & Antilitist
+modversion=1.3.0
+versionMin=42.0
+poster=poster.png
+icon=icon.png
+pack=woodshed_01
+tiledef=woodshed_01 2773
+require=\JB_MaxCapacityOverride

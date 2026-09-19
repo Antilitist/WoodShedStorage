@@ -1,0 +1,55 @@
+module Base
+{
+    entity Wood_Shed_Storage_LeanTo
+    {
+        component UiConfig
+        {
+            xuiSkin = default,
+            entityStyle = ES_Wood_Shed_Storage_LeanTo,
+            uiEnabled = false,
+        }
+
+        component SpriteConfig
+        {
+            canBePadlocked = true,
+            health = 500,
+            skillBaseHealth = 50,
+            OnCreate = BuildRecipeCode.woodShedStorage.OnCreate,
+            /* 2 wide x 1 deep wall-hugger. R cycles S (open south) then E (open east).
+               S is two tiles along X. E is two tiles along Y. */
+            face S
+            {
+                layer
+                {
+                    row = woodshed_01_8 woodshed_01_9,
+                }
+            }
+            face E
+            {
+                layer
+                {
+                    row = woodshed_01_10,
+                    row = woodshed_01_11,
+                }
+            }
+        }
+
+        component CraftRecipe
+        {
+            timedAction = BuildWoodenStructureMedium,
+            time = 240,
+            SkillRequired = Woodwork:4,
+            xpAward = Woodwork:60,
+            category = Furniture,
+            Tags = Carpentry,
+            Tooltip = Tooltip_craft_woodShedLeanToDesc,
+            inputs
+            {
+                item 1 tags[base:hammer] mode:keep flags[Prop1;MayDegradeVeryLight],
+                item 8 [Base.Plank],
+                item 8 [Base.Nails],
+                item 4 [Base.Log],
+            }
+        }
+    }
+}

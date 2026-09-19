@@ -1,0 +1,8 @@
+name=Wood Shed Storage
+id=WoodShedStorage
+description=Craftable wood shed for bulk log/plank storage (test). Carpentry 4. Capacity 250.
+author=Nipsy/Antilitist
+modversion=0.2.0
+versionMin=42.0
+poster=poster.png
+icon=icon.png

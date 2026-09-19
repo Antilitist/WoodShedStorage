@@ -1,0 +1,4 @@
+*.bak*
+__pycache__/
+art/__pycache__/
+.DS_Store

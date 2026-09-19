@@ -1,0 +1,3 @@
+UI_EN = {
+    Tooltip_craft_woodShedStorageDesc = "A sturdy outdoor wood shed for bulk logs, planks, and branches. Capacity 250.",
+}
