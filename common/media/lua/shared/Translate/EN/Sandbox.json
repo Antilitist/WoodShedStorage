@@ -2,5 +2,8 @@
     "Sandbox_WoodShedStorage": "Wood Shed Storage",
 
     "Sandbox_WoodShedStorage_Capacity": "Wood Shed capacity",
-    "Sandbox_WoodShedStorage_Capacity_tooltip": "Storage weight capacity for newly built Wood Sheds (50-2000).<br>Default 400.<br>Values above ~100 require JB Max Capacity Override.<br>Does not resize sheds already placed."
+    "Sandbox_WoodShedStorage_Capacity_tooltip": "Storage weight capacity for newly built Wood Sheds (50-2000).<br>Default 400.<br>Values above 100 need JB Max Capacity Override AND 'Use JB Max Capacity Override' on.<br>Without JB (or with that option off) the bay is 100.<br>Does not resize sheds already placed.",
+
+    "Sandbox_WoodShedStorage_UseJBOverride": "Use JB Max Capacity Override",
+    "Sandbox_WoodShedStorage_UseJBOverride_tooltip": "On: sheds can use sandbox capacity above 100 if JB Max Capacity Override is loaded (default).<br>Off: bay is vanilla 100. No JB mod data. Same mod, no extra download.<br>If JB is not loaded, this acts as off automatically."
 }

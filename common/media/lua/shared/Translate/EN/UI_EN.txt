@@ -1,4 +1,4 @@
 UI_EN = {
-    Tooltip_craft_woodShedStorageDesc = "2x2 outdoor wood shed for bulk logs and planks. One bay. Hit R to swap south/east opening. Capacity set in Sandbox (default 400; needs JB Max Capacity Override above ~100).",
+    Tooltip_craft_woodShedStorageDesc = "2x2 outdoor wood shed for bulk logs and planks. One bay. Hit R to swap south/east opening. Capacity set in Sandbox (default 400). JB Max Capacity Override is optional above 100.",
     Tooltip_craft_woodShedLeanToDesc = "2 wide x 1 deep lean-to wood shed. Hugs a wall. One bay. Hit R to swap south/east opening. Same sandbox capacity as the 2x2 shed.",
 }

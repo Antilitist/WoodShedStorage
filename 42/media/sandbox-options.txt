@@ -9,3 +9,11 @@ option WoodShedStorage.Capacity
     page = WoodShedStorage,
     translation = WoodShedStorage_Capacity,
 }
+
+option WoodShedStorage.UseJBOverride
+{
+    type = boolean,
+    default = true,
+    page = WoodShedStorage,
+    translation = WoodShedStorage_UseJBOverride,
+}

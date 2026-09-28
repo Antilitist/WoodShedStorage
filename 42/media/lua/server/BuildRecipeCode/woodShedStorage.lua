@@ -1,5 +1,5 @@
 --[[
-  Wood Shed Storage — 2x2 custom shed, one bay.
+  Wood Shed Storage — 2x2 custom shed + 2x1 lean-to, one bay each.
   Capacity from Sandbox (50-2000, default 400) on build; restored from thumpable
   modData on chunk load so it survives save/quit.
 
@@ -7,10 +7,16 @@
   (the open bay) and extra sprites on the other squares — not four lootable boxes.
     S master = woodshed_01_2
     E master = woodshed_01_5
+    Lean-to S master = woodshed_01_9
+    Lean-to E master = woodshed_01_10
   Do not setContainer(nil). Do not share one ItemContainer across four objects.
 
-  JB Max Capacity Override reads JB_MaxCapacityOverride from the PARENT
-  (IsoThumpable) modData — not the ItemContainer modData.
+  JB Max Capacity Override is OPTIONAL. Sandbox UseJBOverride (default true).
+  Detect JB via getActivatedMods (JB's Lua is client-only; require() fails
+  on dedicated servers). registerJB() is client-only. Server still writes
+  JB_MaxCapacityOverride when the toggle is on and JB is active.
+  Requested capacity (50-2000) is saved. Live container is 100 only when
+  JB is unused. Turning JB back on restores the requested value.
 ]]
 
 BuildRecipeCode = BuildRecipeCode or {}
@@ -19,30 +25,59 @@ BuildRecipeCode.woodShedStorage = BuildRecipeCode.woodShedStorage or {}
 local DEFAULT_CAPACITY = 400
 local MIN_CAPACITY = 50
 local MAX_CAPACITY = 2000
+local VANILLA_MAX_CAPACITY = 100
 local CONTAINER_TYPE = "woodshed"
 local DISPLAY_NAME = "Wood Shed"
 
-local function clampCapacity(cap)
-    cap = tonumber(cap) or DEFAULT_CAPACITY
-    if cap < MIN_CAPACITY then
-        cap = MIN_CAPACITY
+-- JB probe is lazy: sandbox is not ready at file load.
+-- Detection uses getActivatedMods (JB Lua is client-only; require fails on dedicated).
+local JB_READY = false
+local JB_PROBED = false
+local printedNoJB = false
+
+local function wantJBOverride()
+    -- Default true if the sandbox key is missing (old saves).
+    if SandboxVars and SandboxVars.WoodShedStorage and SandboxVars.WoodShedStorage.UseJBOverride == false then
+        return false
     end
-    if cap > MAX_CAPACITY then
-        cap = MAX_CAPACITY
-    end
-    return math.floor(cap)
+    return true
 end
 
-local function getSandboxCapacity()
-    local cap = DEFAULT_CAPACITY
-    if SandboxVars and SandboxVars.WoodShedStorage and SandboxVars.WoodShedStorage.Capacity ~= nil then
-        cap = SandboxVars.WoodShedStorage.Capacity
+local function isJBModActive()
+    local mods = getActivatedMods and getActivatedMods() or nil
+    if not mods then
+        return false
     end
-    return clampCapacity(cap)
+    local function isJBId(id)
+        id = tostring(id or "")
+        return id == "JB_MaxCapacityOverride" or id == "\\JB_MaxCapacityOverride"
+    end
+    if mods.contains then
+        local ok, hit = pcall(function()
+            return mods:contains("JB_MaxCapacityOverride") or mods:contains("\\JB_MaxCapacityOverride")
+        end)
+        if ok and hit then
+            return true
+        end
+    end
+    if mods.size then
+        local ok, hit = pcall(function()
+            for i = 0, mods:size() - 1 do
+                if isJBId(mods:get(i)) then
+                    return true
+                end
+            end
+            return false
+        end)
+        if ok and hit then
+            return true
+        end
+    end
+    return false
 end
 
 local function registerJB()
-    -- Register type at MAX so per-shed modData can be any sandbox value.
+    -- Client-only. Register type at MAX so per-shed modData can be any sandbox value.
     local ok, JB = pcall(function()
         return require("JB_MaxCapacityOverride")
     end)
@@ -55,15 +90,83 @@ local function registerJB()
     return false
 end
 
-local JB_READY = registerJB()
-if JB_READY then
-    print("[WoodShedStorage] JB registered type='" .. CONTAINER_TYPE .. "' max=" .. tostring(MAX_CAPACITY))
-else
-    print("[WoodShedStorage] WARNING: JB_MaxCapacityOverride not found — bay will cap near 100.")
+local function noteNoJB(why)
+    if printedNoJB then
+        return
+    end
+    printedNoJB = true
+    print("[WoodShedStorage] " .. why .. " — live bay cap 100, requested capacity kept.")
+end
+
+-- True when sandbox wants JB AND the mod is in the activated list.
+-- registerJB() only on client. Dedicated server still writes JB mod data.
+local function usingJB()
+    if not wantJBOverride() then
+        noteNoJB("UseJBOverride off")
+        return false
+    end
+    if not JB_PROBED then
+        JB_PROBED = true
+        JB_READY = isJBModActive()
+        if JB_READY then
+            local server = false
+            pcall(function()
+                server = isServer() == true
+            end)
+            if not server then
+                local registered = registerJB()
+                print("[WoodShedStorage] JB active type='" .. CONTAINER_TYPE
+                    .. "' max=" .. tostring(MAX_CAPACITY)
+                    .. " registered=" .. tostring(registered))
+            else
+                print("[WoodShedStorage] JB active on server — writing JB mod data, skip client register")
+            end
+        else
+            noteNoJB("JB_MaxCapacityOverride not found")
+        end
+    end
+    if not JB_READY then
+        noteNoJB("JB_MaxCapacityOverride not found")
+    end
+    return JB_READY
+end
+
+-- Always 50-2000. This is what we persist.
+local function clampRequested(cap)
+    cap = tonumber(cap) or DEFAULT_CAPACITY
+    if cap < MIN_CAPACITY then
+        cap = MIN_CAPACITY
+    end
+    if cap > MAX_CAPACITY then
+        cap = MAX_CAPACITY
+    end
+    return math.floor(cap)
+end
+
+-- Live container only. 100 when JB is unused; requested otherwise.
+local function liveCapacity(requested)
+    requested = clampRequested(requested)
+    if usingJB() then
+        return requested
+    end
+    if requested > VANILLA_MAX_CAPACITY then
+        return VANILLA_MAX_CAPACITY
+    end
+    return requested
+end
+
+local function getSandboxCapacity()
+    local cap = DEFAULT_CAPACITY
+    if SandboxVars and SandboxVars.WoodShedStorage and SandboxVars.WoodShedStorage.Capacity ~= nil then
+        cap = SandboxVars.WoodShedStorage.Capacity
+    end
+    return clampRequested(cap)
 end
 
 local function applyCapacity(thumpable, capacity, reason)
-    capacity = clampCapacity(capacity)
+    local jb = usingJB()
+    local requested = clampRequested(capacity)
+    local live = liveCapacity(requested)
 
     if thumpable.setName then
         thumpable:setName(DISPLAY_NAME)
@@ -72,9 +175,14 @@ local function applyCapacity(thumpable, capacity, reason)
     local md = thumpable:getModData()
     md.WoodShedStorage = true
     md.woodShedBay = true
-    md.woodShedCapacity = capacity
-    -- JB reads this from the parent object (thumpable), not the container
-    md["JB_MaxCapacityOverride"] = { capacity = capacity }
+    md.woodShedCapacity = requested
+    -- JB reads this from the parent object (thumpable), not the container.
+    -- Do not write it when JB is unused, or leftover data can re-inflate the bay.
+    if jb then
+        md["JB_MaxCapacityOverride"] = { capacity = requested }
+    else
+        md["JB_MaxCapacityOverride"] = nil
+    end
 
     if not thumpable:getContainer() then
         thumpable:setContainer(ItemContainer.new())
@@ -90,24 +198,24 @@ local function applyCapacity(thumpable, capacity, reason)
         c:setType(CONTAINER_TYPE)
     end
 
-    -- Keep a copy on the container too (harmless; some tools look here)
     if c.getModData then
-        c:getModData()["JB_MaxCapacityOverride"] = { capacity = capacity }
-    end
-
-    if not JB_READY then
-        JB_READY = registerJB()
+        if jb then
+            c:getModData()["JB_MaxCapacityOverride"] = { capacity = requested }
+        else
+            c:getModData()["JB_MaxCapacityOverride"] = nil
+        end
     end
 
     if c.setCapacity then
-        c:setCapacity(capacity)
+        c:setCapacity(live)
     end
 
     local actual = c.getCapacity and c:getCapacity() or "?"
     print("[WoodShedStorage] capacity applied reason=" .. tostring(reason)
-        .. " requested=" .. tostring(capacity)
+        .. " requested=" .. tostring(requested)
+        .. " live=" .. tostring(live)
         .. " actual=" .. tostring(actual)
-        .. " jb=" .. tostring(JB_READY))
+        .. " jb=" .. tostring(jb))
     return true
 end
 
@@ -153,6 +261,7 @@ local EXTRAS = {
 }
 
 local pendingMasters = {}
+local armTickSweep = function() end
 
 local function squareHasWoodShed(sq)
     if not sq or not sq.getObjects then
@@ -424,6 +533,7 @@ function BuildRecipeCode.woodShedStorage.OnCreate(params)
             end)
             placeExtras(master)
             pendingMasters[#pendingMasters + 1] = master
+            armTickSweep()
             if master ~= thumpable then
                 result = { replaceObject = true, object = master }
             end
@@ -610,17 +720,26 @@ local function onLoadGridsquare(square)
             if not cap then
                 cap = getSandboxCapacity()
             end
+            local requested = clampRequested(cap)
+            local jb = usingJB()
+            local live = liveCapacity(requested)
             local need = true
-            if md and md.WoodShedStorage and md["JB_MaxCapacityOverride"]
-                and md["JB_MaxCapacityOverride"].capacity == cap then
-                local c = obj.getContainer and obj:getContainer() or nil
-                if c and c.getCapacity and c:getCapacity() == cap then
+            local c = obj.getContainer and obj:getContainer() or nil
+            local actual = c and c.getCapacity and c:getCapacity() or nil
+            local jbMd = md and md["JB_MaxCapacityOverride"] or nil
+            local jbCap = jbMd and jbMd.capacity or nil
+            if md and md.WoodShedStorage and md.woodShedCapacity == requested and actual == live then
+                if jb then
+                    if jbCap == requested then
+                        need = false
+                    end
+                elseif not jbMd then
                     need = false
                 end
             end
             if need then
                 pcall(function()
-                    applyCapacity(obj, cap, "LoadGridsquare")
+                    applyCapacity(obj, requested, "LoadGridsquare")
                 end)
             end
         elseif obj.getModData and obj:getModData() and obj:getModData().WoodShedExtra then
@@ -921,6 +1040,7 @@ Events.OnGameStart.Add(wrapDestroyAndScrap)
 
 if Events.OnTick then
     local n = 0
+    local tickArmed = false
     local function tickSweep()
         n = n + 1
         wrapDisassembleMenu()
@@ -928,6 +1048,7 @@ if Events.OnTick then
         if #pendingMasters > 0 then
             local list = pendingMasters
             pendingMasters = {}
+            n = 0
             for i = 1, #list do
                 pcall(function()
                     sweepLeftoverThumpables(list[i])
@@ -936,9 +1057,19 @@ if Events.OnTick then
         end
         if n >= 120 then
             Events.OnTick.Remove(tickSweep)
+            tickArmed = false
         end
     end
-    Events.OnTick.Add(tickSweep)
+    armTickSweep = function()
+        if tickArmed then
+            n = 0
+            return
+        end
+        tickArmed = true
+        n = 0
+        Events.OnTick.Add(tickSweep)
+    end
+    armTickSweep()
 end
 
 print("[WoodShedStorage] BuildRecipeCode.woodShedStorage loaded (one IsoThumpable + extra sprites).")
