@@ -47,9 +47,9 @@ module Base
             inputs
             {
                 item 1 tags[base:hammer] mode:keep flags[Prop1;MayDegradeVeryLight],
-                item 10 [Base.Plank],
-                item 10 [Base.Nails],
-                item 6 [Base.Log],
+                item 12 [Base.Plank],
+                item 12 [Base.Nails],
+                item 2 [Base.Log],
             }
         }
     }

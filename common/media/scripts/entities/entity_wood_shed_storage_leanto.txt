@@ -48,7 +48,7 @@ module Base
                 item 1 tags[base:hammer] mode:keep flags[Prop1;MayDegradeVeryLight],
                 item 8 [Base.Plank],
                 item 8 [Base.Nails],
-                item 4 [Base.Log],
+                item 1 [Base.Log],
             }
         }
     }

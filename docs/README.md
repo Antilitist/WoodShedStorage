@@ -1,30 +1,33 @@
-# Wood Shed Storage [B42] — 1.1.0
+# Wood Shed Storage [B42] — 1.4.2
 
-Tall craftable outdoor **Wood Shed** with one large storage bay.
+Craftable outdoor **Wood Shed** (2x2) and **Wood Shed (Lean-to)** (2x1). One storage bay each.
 
-## Requires
+## Optional
 
 | Mod | Workshop ID |
 |-----|-------------|
 | **JB Max Capacity Override** | [3452113500](https://steamcommunity.com/sharedfiles/filedetails/?id=3452113500) |
 | **Starlit Library** | required by JB |
 
-**Load order:** Starlit → JB Max Capacity Override → Wood Shed Storage
+JB is **not required**. Without it (or with sandbox **Use JB Max Capacity Override** off) the bay is vanilla **100**.
+
+**Load order:** Starlit → JB (if using) → Wood Shed Storage
 
 ## Sandbox
 
-| Option | Min | Max | Default |
-|--------|-----|-----|---------|
-| Wood Shed capacity | **50** | **2000** | **400** |
+| Option | Default |
+|--------|---------|
+| Wood Shed capacity | **400** (50–2000) |
+| Use JB Max Capacity Override | **on** |
 
-Applies to **newly built** sheds. Already-placed sheds keep their old capacity.
-Values above ~100 need JB.
+Capacity above 100 needs JB **and** the toggle on. Requested capacity (50–2000) is saved; the live bay is 100 only while JB is unused. Turn JB back on to restore.
 
 ## In-game
 
-- Building → **Furniture** → **Wood Shed**
+- Building → **Furniture** → **Wood Shed** / **Wood Shed (Lean-to)**
 - Woodwork **4**
-- Hammer + 10 Planks + 10 Nails + 6 Logs
+- 2x2: Hammer + 12 Planks + 12 Nails + 2 Logs
+- Lean-to: Hammer + 8 Planks + 8 Nails + 1 Log
 
 ## Workshop package
 

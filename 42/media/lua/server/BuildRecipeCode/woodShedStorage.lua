@@ -372,15 +372,15 @@ local function removeExtraThumpable(thumpable)
 end
 
 local RECIPE_DROPS = {
-    { "Base.Plank", 10 },
-    { "Base.Nails", 10 },
-    { "Base.Log", 6 },
+    { "Base.Plank", 12 },
+    { "Base.Nails", 12 },
+    { "Base.Log", 2 },
 }
 
 local LEAN_DROPS = {
     { "Base.Plank", 8 },
     { "Base.Nails", 8 },
-    { "Base.Log", 4 },
+    { "Base.Log", 1 },
 }
 
 -- Dump loot without IsoObjectUtils.dumpContentsInSquare (that WARNs on 2x2 SpriteConfig).
